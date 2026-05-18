@@ -4,7 +4,7 @@ published: 2026-05-18
 tags: [TryHackMe, Writeup, Pentest, Windows, Privilege Escalation, CVE-2018-1335, AlwaysInstallElevated]
 category: Writeups
 description: Hướng dẫn chi tiết cách giải quyết máy CyberLens trên TryHackMe. Khai thác lỗ hổng CVE-2018-1335 trên Apache Tika để lấy Initial Access và leo thang đặc quyền thông qua cấu hình sai AlwaysInstallElevated trên Windows.
-draft: false
+draft: true
 image: /assets/data/cyberlens.png
 ---
 
