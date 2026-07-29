@@ -1,7 +1,16 @@
 ---
 title: "TryHackMe - CyberLens Writeup"
 published: 2026-05-18
-tags: [TryHackMe, Writeup, Pentest, Windows, Privilege Escalation, CVE-2018-1335, AlwaysInstallElevated]
+tags:
+  [
+    TryHackMe,
+    Writeup,
+    Pentest,
+    Windows,
+    Privilege Escalation,
+    CVE-2018-1335,
+    AlwaysInstallElevated,
+  ]
 category: Writeups
 description: Hướng dẫn chi tiết cách giải quyết máy CyberLens trên TryHackMe. Khai thác lỗ hổng CVE-2018-1335 trên Apache Tika để lấy Initial Access và leo thang đặc quyền thông qua cấu hình sai AlwaysInstallElevated trên Windows.
 draft: true
@@ -9,6 +18,7 @@ image: /assets/data/cyberlens.png
 ---
 
 ## Giới thiệu
+
 **CyberLens** là một cỗ máy (machine) trên TryHackMe tập trung vào việc khai thác một ứng dụng web server có tồn tại lỗ hổng, cụ thể là Apache Tika, và sau đó lợi dụng sự cấu hình sai (misconfiguration) của Windows registry để leo thang đặc quyền lên mức cao nhất.
 
 ## 1. Reconnaissance (Thu thập thông tin)
@@ -29,6 +39,7 @@ Nmap scan phát hiện nhiều cổng đang mở, bao gồm các dịch vụ ph�
 Đáng chú ý, có một máy chủ web chạy trên cổng **80** và một máy chủ web thứ hai chạy trên cổng **61777**.
 
 ### Khám phá dịch vụ Web
+
 Khi truy cập trang web ở cổng 80, chúng ta thấy một trang web (one-pager).
 
 ![Trang web cổng 80](/assets/data/cyberlens_3.png)
@@ -57,18 +68,20 @@ Lỗ hổng **CVE-2018-1335** là một lỗi thực thi mã từ xa (Remote Cod
 Chúng ta có thể khai thác nó qua các phương pháp sau:
 
 ### Phương pháp 1: Sử dụng Metasploit
+
 Tìm kiếm lỗ hổng của Tika trên Metasploit, ta có sẵn module khai thác lệnh (command injection) phù hợp với phiên bản này.
 
 ![Metasploit module](/assets/data/cyberlens_7.png)
 
 Cấu hình các tham số:
+
 - Thiết lập `LHOST` (IP của máy tấn công)
 - Thiết lập `RHOST` (IP của mục tiêu)
 - Thiết lập `RPORT` (61777)
 
 ![Metasploit options](/assets/data/cyberlens_8.png)
 
-Khởi chạy exploit, ta sẽ nhận được một reverse shell với quyền user `cyberlens`. 
+Khởi chạy exploit, ta sẽ nhận được một reverse shell với quyền user `cyberlens`.
 
 ![Reverse shell cyberlens](/assets/data/cyberlens_9.png)
 
@@ -77,18 +90,20 @@ Sau khi liệt kê thư mục bằng lệnh `tree /f`, ta có thể tìm thấy 
 ![User flag](/assets/data/cyberlens_10.png)
 
 ### Phương pháp 2: Sử dụng Script / Khai thác thủ công
+
 Chúng ta có thể sử dụng script exploit viết bằng Python từ Rhino Security Labs.
 
 ![Python script](/assets/data/cyberlens_11.png)
 
 Bên cạnh đó, việc khai thác thủ công có thể được thực hiện thông qua `curl` để gọi các process như `calc.exe`. Do giới hạn việc Java ProcessBuilder xử lý lệnh như một chuỗi (string) duy nhất chứ không nhận nhiều đối số, ta có một cách đi vòng (workaround) như sau:
 Sử dụng header HTTP:
+
 - `X-Tika-OCRTesseractPath: "cscript.exe"`
 - `X-Tika-OCRLanguage: //E:Jscript`
 
 Dữ liệu (data) được gửi lên máy chủ là mã Jscript hoặc VBS, tạo đối tượng WScript.Shell để kích hoạt Powershell reverse shell, giúp ta chiếm quyền kiểm soát máy mục tiêu.
 
-*Bạn có thể truy cập `revshells.com` để tự tạo cho mình một câu lệnh PowerShell reverse shell tương ứng.*
+_Bạn có thể truy cập `revshells.com` để tự tạo cho mình một câu lệnh PowerShell reverse shell tương ứng._
 
 ![Bắt shell thủ công](/assets/data/cyberlens_12.png)
 
@@ -99,12 +114,15 @@ Với quyền user `cyberlens`, mục tiêu tiếp theo là leo thang đặc quy
 Đầu tiên, ta tiến hành thu thập thông tin về hệ thống để tìm kiếm vector tấn công. Chúng ta có thể tải các script enumerate Windows như `WinPEAS`, `PowerUp` hoặc `PrivescCheck.ps1` lên máy mục tiêu.
 
 Kiểm tra xem Windows Defender hay phần mềm chống virus nào đang chạy hay không:
+
 ```powershell
 Get-MpComputerStatus
 ```
+
 Lệnh trên cho thấy không có cơ chế bảo vệ nào đang chạy, giúp ta có thể thoải mái sử dụng các công cụ như `msfvenom` hoặc mã độc mà không sợ bị chặn.
 
 Khi chạy file `PrivescCheck.ps1`:
+
 ```powershell
 . .\PrivescCheck.ps1; Invoke-PrivescCheck -Extended
 ```
@@ -115,8 +133,9 @@ Kết quả báo cáo phát hiện ra cấu hình sai: **AlwaysInstallElevated**
 Tính năng `AlwaysInstallElevated` khi được bật cho phép bất kỳ user nào cũng có thể cài đặt các tệp `.msi` với quyền tối cao (`SYSTEM`).
 
 Có thể kiểm tra lại điều này thông qua Registry:
+
 ```cmd
-reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated 
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 ```
 
@@ -139,4 +158,5 @@ Kết quả, ta có một reverse shell dưới quyền `NT AUTHORITY\SYSTEM`.
 Bạn có thể tiến đến thư mục `C:\Users\Administrator\Desktop\` và đọc file `admin.txt` để lấy cờ Root (Root flag).
 
 ## Tổng kết
+
 CyberLens là một ví dụ tuyệt vời về việc áp dụng enumeration một cách thận trọng ở cả trước và sau khi xâm nhập vào một hệ thống mạng. Tìm hiểu kĩ về Apache Tika CVE-2018-1335 và misconfiguration AlwaysInstallElevated trên Windows là những bài học kỹ năng quan trọng mà bất kỳ người kiểm tra bảo mật (pentester) nào cũng cần nắm vững.

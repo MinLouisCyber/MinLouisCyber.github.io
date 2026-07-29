@@ -59,11 +59,11 @@ export const profileConfig: ProfileConfig = {
 	bio: "Web Security & Forensics | Cybersecurity @PTIT",
 	links: [
 		{
-			name: "Twitter",
-			icon: "fa6-brands:twitter", // Visit https://icones.js.org/ for icon codes
+			name: "Telegram",
+			icon: "fa6-brands:telegram", // Visit https://icones.js.org/ for icon codes
 			// You will need to install the corresponding icon set if it's not already included
 			// `pnpm add @iconify-json/<icon-set-name>`
-			url: "https://twitter.com/tunminh355305",
+			url: "https://t.me/sophia13777",
 		},
 		{
 			name: "facebook",

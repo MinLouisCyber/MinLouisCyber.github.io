@@ -9,4 +9,4 @@ Chào mừng bạn đến với mã nguồn blog cá nhân của mình! Đây l�
 - **Liên hệ & Kết nối:**
   - [GitHub (MinlouisCyber)](https://github.com/MinlouisCyber)
   - [Facebook](https://www.facebook.com/luutuanminh.zone/)
-  - [Twitter](https://twitter.com/tunminh355305)
+  - [Telegram](https://t.me/sophia13777)
